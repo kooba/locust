@@ -456,8 +456,8 @@ def print_stats(stats):
     total_failures = 0
     avg_response_time = []
     median_response_time = []
-    min_response_time = 0
-    max_response_time = 0
+    min_response_time = None
+    max_response_time = None
     avg_content_length = []
     for key in sorted(stats.iterkeys()):
         r = stats[key]
@@ -466,8 +466,19 @@ def print_stats(stats):
         total_failures += r.num_failures
         avg_response_time.append(r.avg_response_time)
         median_response_time.append(r.median_response_time)
-        min_response_time = r.min_response_time if r.min_response_time < min_response_time else min_response_time
-        max_response_time = r.max_response_time if r.max_response_time > max_response_time else max_response_time
+        
+        if min_response_time is None:
+            min_response_time = r.min_response_time
+        else:
+            if r.min_response_time < min_response_time:
+                min_response_time = r.min_response_time
+
+        if max_response_time is None:
+            max_response_time = r.max_response_time
+        else:
+            if r.max_response_time > max_response_time:
+                max_response_time = r.max_response_time
+
         avg_content_length.append(r.avg_content_length)
         console_logger.info(r)
     console_logger.info("-" * (80 + STATS_NAME_WIDTH))
