@@ -454,11 +454,21 @@ def print_stats(stats):
     total_rps = 0
     total_reqs = 0
     total_failures = 0
+    avg_response_time = []
+    median_response_time = []
+    min_response_time = 0
+    max_response_time = 0
+    avg_content_length = []
     for key in sorted(stats.iterkeys()):
         r = stats[key]
         total_rps += r.current_rps
         total_reqs += r.num_requests
         total_failures += r.num_failures
+        avg_response_time.append(r.avg_response_time)
+        median_response_time.append(r.median_response_time)
+        min_response_time = r.min_response_time if r.min_response_time < min_response_time else min_response_time
+        max_response_time = r.max_response_time if r.max_response_time > max_response_time else max_response_time
+        avg_content_length.append(r.avg_content_length)
         console_logger.info(r)
     console_logger.info("-" * (80 + STATS_NAME_WIDTH))
 
@@ -468,6 +478,17 @@ def print_stats(stats):
         fail_percent = 0
 
     console_logger.info((" %-" + str(STATS_NAME_WIDTH) + "s %7d %12s %42.2f") % ('Total', total_reqs, "%d(%.2f%%)" % (total_failures, fail_percent), total_rps))
+    console_logger.info("total_reqs,total_failures,avg_response_time,median_response_time,min_response_time,max_response_time,avg_content_length,total_rps")
+    console_logger.info("{},{},{},{},{},{},{},{}".format(
+        total_reqs,
+        total_failures,
+        sum(avg_response_time)/len(avg_response_time),
+        sum(median_response_time)/len(median_response_time),
+        min_response_time,
+        max_response_time,
+        sum(avg_content_length)/len(avg_content_length),
+        total_rps
+    ))
     console_logger.info("")
 
 def print_percentile_stats(stats):
